@@ -1,0 +1,36 @@
+<configuration>
+  <property>
+    <name>hive.metastore.warehouse.dir</name>
+    <value>/home/sjj/hive/warehouse</value>
+    <description>数仓位置</description>
+  </property>
+  <property>
+    <name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:mysql://test:3306/hive?createDatabaseIfNotExist=true&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8</value>
+    <description>MySQL连接协议 </description>
+  </property>
+  <property>
+    <name>javax.jdo.option.ConnectionDriverName</name>
+    <value>com.mysql.cj.jdbc.Driver</value>
+    <description>JDBC连接驱动</description>
+  </property>
+  <property>
+    <name>javax.jdo.option.ConnectionUserName</name>
+    <value>root</value>
+    <description>用户名</description>
+  </property>
+  <property>
+    <name>javax.jdo.option.ConnectionPassword</name>
+    <value>123456</value>
+    <description>密码</description> 
+  </property>  
+  <property>
+    <name>hive.metastore.schema.verification</name>
+    <value>false</value>
+  </property>
+  <property>
+    <name>hive.cli.print.header</name>
+    <value>true</value>
+  </property>
+</configuration>
+
