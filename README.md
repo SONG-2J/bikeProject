@@ -159,3 +159,9 @@ kafka.errors.UnsupportedCodecError: UnsupportedCodecError: Libraries for snappy 
 pip3 install python-snappy
 ```
 
+```shell
+Caused by: com.mysql.cj.jdbc.exceptions.MysqlDataTruncation: Data truncation: Incorrect string value: '\xE4\xBB\xA5\xE4\xB8\x8A' for column 
+
+将数据库编码设置为utf8，或者不要在视图字段中出现中文
+```
+
