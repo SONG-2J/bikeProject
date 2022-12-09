@@ -24,7 +24,9 @@ object processHiveData {
 
     // selectSimpleTemp(sparkSession,Array("*"),"instant","instant asc").show(5)
     // cnt分区统计
-    useRate(sparkSession)
+    // useRate(sparkSession)
+    val frame = sparkSession.sql("select dteday,cnt from bike.bike where yr=1")
+    dataframe2Mysql(frame,"date1_cnt")
   }
 
   // 全部放一个函数里
