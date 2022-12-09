@@ -25,8 +25,11 @@ object processHiveData {
     // selectSimpleTemp(sparkSession,Array("*"),"instant","instant asc").show(5)
     // cnt分区统计
     // useRate(sparkSession)
-    val frame = sparkSession.sql("select dteday,cnt from bike.bike where yr=1")
-    dataframe2Mysql(frame,"date1_cnt")
+//    val frame = sparkSession.sql("select dteday,cnt from bike.bike where yr=1")
+//    dataframe2Mysql(frame,"date1_cnt")
+    // 天气统计
+    val dataframe = selectSimpleTemp(sparkSession, Array("weathersit", "sum(casual) weathersit_casual"), "weathersit", "weathersit asc")
+    dataframe2Mysql(dataframe, "weathersit_casual")
   }
 
   // 全部放一个函数里

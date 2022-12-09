@@ -1,10 +1,16 @@
 # 绘图
 from connMysql import connMysql
+from pyecharts.components import Image
+from pyecharts.options import ComponentTitleOpts
+from pyecharts.charts import PictorialBar
+from pyecharts.globals import SymbolType
 from pyecharts import options as opts
 from pyecharts.charts import Pie
 from pyecharts.charts import Bar
 from pyecharts.charts import Line
 from pyecharts.charts import Grid
+from pyecharts.charts import EffectScatter
+from pyecharts.charts import Radar
 from pyecharts.charts import WordCloud
 from pyecharts.charts import Tab
 from pyecharts.faker import Faker
@@ -12,6 +18,16 @@ from pyecharts.faker import Faker
 # 获得mysql的conn
 conn = connMysql()
 cursor = conn.cursor()
+
+
+# 插入一幅图片
+def imgShow():
+    c = (Image()
+         .add(
+        src='https://gimg2.baidu.com/image_search/src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fimages%2F20171018%2F8136cf30421b4da785db4f4ccd89ec2e.jpeg&refer=http%3A%2F%2F5b0988e595225.cdn.sohucs.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1673162909&t=60bb894776084545ee29eef5f269c711',
+        style_opts={"width": "1200px", "height": "600px", "style": "margin-left: 100px"})
+         .set_global_opts(title_opts=ComponentTitleOpts(title="华盛顿共享单车数据可视化展示")))
+    return c
 
 
 # 根据cnt绘制饼图
@@ -61,12 +77,12 @@ def line_date():
         Line(init_opts=opts.InitOpts(height="400px", width="1400px"))
             .add_xaxis(x0_data)
             .add_yaxis('', y0_data, is_smooth=True, color="#ffdd00")
-            .set_global_opts(title_opts=opts.TitleOpts(title="Line-date"),yaxis_opts=opts.AxisOpts(max_=10000))
+            .set_global_opts(title_opts=opts.TitleOpts(title="Line-date"), yaxis_opts=opts.AxisOpts(max_=10000))
     )
     c1 = (
         Line(init_opts=opts.InitOpts(height="400px", width="1400px"))
             .add_xaxis(x1_data)
-            .add_yaxis('', y1_data,is_smooth=True, color="#f15a22")
+            .add_yaxis('', y1_data, is_smooth=True, color="#f15a22")
     )
     grid = Grid(init_opts=opts.InitOpts(height="800px", width="1400px"))
     grid.add(c0, grid_opts=opts.GridOpts(pos_bottom='60%'))
@@ -74,11 +90,126 @@ def line_date():
     return grid
 
 
+# 根据假日周末绘图
+def bar_hw():
+    cursor.execute("select * from holiday_avg")
+    hol_data = cursor.fetchall()
+    cursor.execute("select * from workingday_avg")
+    wrk_data = cursor.fetchall()
+    y_hol = []
+    y_wrk = []
+    for h in hol_data:
+        y_hol.append(h[1])
+    for w in wrk_data:
+        y_wrk.append(w[1])
+    c = (Bar(init_opts=opts.InitOpts(height="800px", width="1400px"))
+         .add_xaxis(['是', '否'])
+         .add_yaxis('是否是假期', y_hol, color='#ff4500')
+         .add_yaxis('是否是工作日', y_wrk, color='#3cb371')
+         .set_global_opts(title_opts=opts.TitleOpts(title="Bar-h&w")))
+    return c
+
+
+# 根据月份绘图:
+def mnth():
+    cursor.execute('select * from mnth_cnt')
+    data = cursor.fetchall()
+    x = []
+    y = []
+    for d in data:
+        x.append(str(d[0]) + '月')
+        y.append(d[1])
+    c = (
+        EffectScatter(init_opts=opts.InitOpts(height="800px", width="1400px"))
+            .add_xaxis(x)
+            .add_yaxis("", y)
+            .set_global_opts(
+            title_opts=opts.TitleOpts(title="EffectScatter-月份使用量"),
+            xaxis_opts=opts.AxisOpts(splitline_opts=opts.SplitLineOpts(is_show=True)),
+            yaxis_opts=opts.AxisOpts(splitline_opts=opts.SplitLineOpts(is_show=True))
+        )
+    )
+    return c
+
+
+# 根据季节绘图
+def season():
+    cursor.execute(
+        'select case when season=1 then "春" when season=2 then "夏" when season=3 then "秋" when season=4 then "冬" end season,season_sum from season_cnt')
+    data = cursor.fetchall()
+    x = []
+    y = []
+    for d in data:
+        x.append(d[0])
+        y.append(d[1])
+    c = (
+        PictorialBar(init_opts=opts.InitOpts(height="800px", width="1400px"))
+            .add_xaxis(x)
+            .add_yaxis(
+            "",
+            y,
+            label_opts=opts.LabelOpts(is_show=False),
+            symbol_size=18,
+            symbol_repeat="fixed",
+            symbol_offset=[0, 0],
+            is_symbol_clip=True,
+            symbol=SymbolType.ROUND_RECT,
+        )
+            .reversal_axis()
+            .set_global_opts(
+            title_opts=opts.TitleOpts(title="PictorialBar-各季节单车使用情况"),
+            xaxis_opts=opts.AxisOpts(is_show=False),
+            yaxis_opts=opts.AxisOpts(
+                axistick_opts=opts.AxisTickOpts(is_show=False),
+                axisline_opts=opts.AxisLineOpts(
+                    linestyle_opts=opts.LineStyleOpts(opacity=0)
+                ),
+            ),
+        )
+    )
+    return c
+
+
+# 根据天气绘图
+def weather():
+    cursor.execute(
+        'select case when weathersit=1 then "晴天" when weathersit=2 then "雾天" when weathersit=3 then "小雪" when weathersit=4 then "大雨" end weathersit,weathersit_cnt from weathersit_cnt')
+    data = cursor.fetchall()
+    y = []
+    for d in data:
+        y.append(d[1])
+    y.append(0)  # 没有大雨数据
+    cursor.execute('select * from weathersit_casual')
+    data = cursor.fetchall()
+    yc = []
+    for d in data:
+        yc.append(d[1])
+    yc.append(0)
+    c = (Radar(init_opts=opts.InitOpts(height="800px", width="1400px"))
+         .add_schema(schema=[
+        opts.RadarIndicatorItem(name="晴天", max_=2500000),
+        opts.RadarIndicatorItem(name="雾天", max_=2500000),
+        opts.RadarIndicatorItem(name="小雨", max_=2500000),
+        opts.RadarIndicatorItem(name="大雨", max_=2500000),
+    ])
+         .add(series_name='租车总数', data=[y], linestyle_opts=opts.LineStyleOpts(color="#CD0000"))
+         .add(series_name='空闲车辆', data=[yc], linestyle_opts=opts.LineStyleOpts(color='#5CACEE'))
+         .set_global_opts(title_opts=opts.TitleOpts(title="天气雷达图"), legend_opts=opts.LegendOpts()
+                          )
+         )
+    return c
+
+
 def addOne():
     tab = Tab()
+    tab.add(imgShow(), '首页')
     tab.add(pie_cnt(), 'show1')
     tab.add(bar_week(), 'show2')
     tab.add(line_date(), 'show3')
+    tab.add(bar_hw(), 'show4')
+    tab.add(mnth(), 'show5')
+    tab.add(season(), 'show6')
+    tab.add(weather(), 'show7')
     tab.render('./show/addOne.html')
 
 
