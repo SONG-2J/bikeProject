@@ -76,13 +76,16 @@ def line_date():
     c0 = (
         Line(init_opts=opts.InitOpts(height="400px", width="1400px"))
             .add_xaxis(x0_data)
-            .add_yaxis('', y0_data, is_smooth=True, color="#ffdd00")
-            .set_global_opts(title_opts=opts.TitleOpts(title="Line-date"), yaxis_opts=opts.AxisOpts(max_=10000))
+            .add_yaxis('2011', y0_data, is_smooth=True, color="#ffdd00")
+            .set_global_opts(title_opts=opts.TitleOpts(title="Line-date"), legend_opts=opts.LegendOpts(pos_top="5%"),
+                             yaxis_opts=opts.AxisOpts(max_=10000))
     )
     c1 = (
         Line(init_opts=opts.InitOpts(height="400px", width="1400px"))
             .add_xaxis(x1_data)
-            .add_yaxis('', y1_data, is_smooth=True, color="#f15a22")
+            .add_yaxis('2012', y1_data, is_smooth=True, color="#f15a22")
+            .set_global_opts(title_opts=opts.TitleOpts(title="Line-date"), legend_opts=opts.LegendOpts(pos_top="55%"),
+                             yaxis_opts=opts.AxisOpts(max_=10000))
     )
     grid = Grid(init_opts=opts.InitOpts(height="800px", width="1400px"))
     grid.add(c0, grid_opts=opts.GridOpts(pos_bottom='60%'))
@@ -200,16 +203,51 @@ def weather():
     return c
 
 
+## 根据温度和湿度绘图
+def th():
+    cursor.execute('select * from temp')
+    t = cursor.fetchall()
+    x0_data = []
+    y0_data = []
+    for d in t:
+        x0_data.append(d[0])
+        y0_data.append(d[1])
+    cursor.execute('select * from hum')
+    h = cursor.fetchall()
+    x1_data = []
+    y1_data = []
+    for d in h:
+        x1_data.append(d[0])
+        y1_data.append(d[1])
+    c0 = (
+        Line(init_opts=opts.InitOpts(height="600px", width="700px"))
+            .add_xaxis(x0_data)
+            .add_yaxis('温度', y0_data, color='#ffdd00')
+            .set_global_opts(title_opts=opts.TitleOpts(title="Line-temp&hum"), legend_opts=opts.LegendOpts(pos_left="20%"))
+    )
+    c1 = (
+        Line(init_opts=opts.InitOpts(height="600px", width="700px"))
+            .add_xaxis(x1_data)
+            .add_yaxis('湿度', y1_data, color='#f15a22')
+            .set_global_opts(title_opts=opts.TitleOpts(title="Line-temp&hum"), legend_opts=opts.LegendOpts(pos_right="20%"))
+    )
+    grid = Grid(init_opts=opts.InitOpts(height="800px", width="1400px"))
+    grid.add(c0, grid_opts=opts.GridOpts(is_show=True, pos_right='55%', pos_top='20%'))
+    grid.add(c1, grid_opts=opts.GridOpts(is_show=True, pos_left='55%', pos_top='20%'))
+    return grid
+
+
 def addOne():
     tab = Tab()
     tab.add(imgShow(), '首页')
-    tab.add(pie_cnt(), 'show1')
-    tab.add(bar_week(), 'show2')
-    tab.add(line_date(), 'show3')
-    tab.add(bar_hw(), 'show4')
-    tab.add(mnth(), 'show5')
-    tab.add(season(), 'show6')
-    tab.add(weather(), 'show7')
+    tab.add(pie_cnt(), '数量')
+    tab.add(bar_week(), '星期')
+    tab.add(line_date(), '日期')
+    tab.add(bar_hw(), '假日')
+    tab.add(mnth(), '月份')
+    tab.add(season(), '季节')
+    tab.add(weather(), '天气')
+    tab.add(th(), '温湿')
     tab.render('./show/addOne.html')
 
 

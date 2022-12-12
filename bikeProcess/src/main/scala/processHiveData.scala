@@ -28,8 +28,11 @@ object processHiveData {
 //    val frame = sparkSession.sql("select dteday,cnt from bike.bike where yr=1")
 //    dataframe2Mysql(frame,"date1_cnt")
     // 天气统计
-    val dataframe = selectSimpleTemp(sparkSession, Array("weathersit", "sum(casual) weathersit_casual"), "weathersit", "weathersit asc")
-    dataframe2Mysql(dataframe, "weathersit_casual")
+//    val dataframe = selectSimpleTemp(sparkSession, Array("weathersit", "sum(casual) weathersit_casual"), "weathersit", "weathersit asc")
+//    dataframe2Mysql(dataframe, "weathersit_casual")
+    // 温度temp/湿度hum
+    val dataFrame = sparkSession.sql("select floor(hum*100) h,round(avg(cnt),2) avg_cnt from bike.bike group by h order by h")
+    dataframe2Mysql(dataFrame,"hum")
   }
 
   // 全部放一个函数里
