@@ -10,10 +10,8 @@ from pyecharts.charts import Bar
 from pyecharts.charts import Line
 from pyecharts.charts import Grid
 from pyecharts.charts import EffectScatter
-from pyecharts.charts import Radar
-from pyecharts.charts import WordCloud
 from pyecharts.charts import Tab
-from pyecharts.faker import Faker
+from pyecharts.charts import Radar
 
 # 获得mysql的conn
 conn = connMysql()
@@ -50,7 +48,7 @@ def bar_week():
     for d in data:
         y_data.append(d[1])
     c = (Bar(init_opts=opts.InitOpts(height="800px", width="1400px"))
-         .add_xaxis(['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期七'])
+         .add_xaxis(['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'])
          .add_yaxis("数量", y_data, category_gap=0, color='#3cb371')
          .set_global_opts(title_opts=opts.TitleOpts(title="Bar-week"))
          )
@@ -106,9 +104,9 @@ def bar_hw():
     for w in wrk_data:
         y_wrk.append(w[1])
     c = (Bar(init_opts=opts.InitOpts(height="800px", width="1400px"))
-         .add_xaxis(['是', '否'])
-         .add_yaxis('是否是假期', y_hol, color='#ff4500')
-         .add_yaxis('是否是工作日', y_wrk, color='#3cb371')
+         .add_xaxis(['2011年', '2012年'])
+         .add_yaxis('假期日', y_hol, color='#ff4500')
+         .add_yaxis('工作日', y_wrk, color='#3cb371')
          .set_global_opts(title_opts=opts.TitleOpts(title="Bar-h&w")))
     return c
 
@@ -138,13 +136,10 @@ def mnth():
 # 根据季节绘图
 def season():
     cursor.execute(
-        'select case when season=1 then "春" when season=2 then "夏" when season=3 then "秋" when season=4 then "冬" end season,season_sum from season_cnt')
+        'select case when season=1 then "冬季" when season=2 then "春季" when season=3 then "夏季" when season=4 then "秋季" end season,season_sum from season_cnt')
     data = cursor.fetchall()
-    x = []
-    y = []
-    for d in data:
-        x.append(d[0])
-        y.append(d[1])
+    x = [data[0][0], data[3][0], data[2][0], data[1][0]]
+    y = [data[0][1], data[3][1], data[2][1], data[1][1]]
     c = (
         PictorialBar(init_opts=opts.InitOpts(height="800px", width="1400px"))
             .add_xaxis(x)
@@ -192,11 +187,10 @@ def weather():
          .add_schema(schema=[
         opts.RadarIndicatorItem(name="晴天", max_=2500000),
         opts.RadarIndicatorItem(name="雾天", max_=2500000),
-        opts.RadarIndicatorItem(name="小雨", max_=2500000),
-        opts.RadarIndicatorItem(name="大雨", max_=2500000),
+        opts.RadarIndicatorItem(name="小雪", max_=2500000),
     ])
          .add(series_name='租车总数', data=[y], linestyle_opts=opts.LineStyleOpts(color="#CD0000"))
-         .add(series_name='空闲车辆', data=[yc], linestyle_opts=opts.LineStyleOpts(color='#5CACEE'))
+         .add(series_name='休闲用户数量', data=[yc], linestyle_opts=opts.LineStyleOpts(color='#5CACEE'))
          .set_global_opts(title_opts=opts.TitleOpts(title="天气雷达图"), legend_opts=opts.LegendOpts()
                           )
          )
@@ -223,13 +217,15 @@ def th():
         Line(init_opts=opts.InitOpts(height="600px", width="700px"))
             .add_xaxis(x0_data)
             .add_yaxis('温度', y0_data, color='#ffdd00')
-            .set_global_opts(title_opts=opts.TitleOpts(title="Line-temp&hum"), legend_opts=opts.LegendOpts(pos_left="20%"))
+            .set_global_opts(title_opts=opts.TitleOpts(title="Line-temp&hum"),
+                             legend_opts=opts.LegendOpts(pos_left="20%"))
     )
     c1 = (
         Line(init_opts=opts.InitOpts(height="600px", width="700px"))
             .add_xaxis(x1_data)
             .add_yaxis('湿度', y1_data, color='#f15a22')
-            .set_global_opts(title_opts=opts.TitleOpts(title="Line-temp&hum"), legend_opts=opts.LegendOpts(pos_right="20%"))
+            .set_global_opts(title_opts=opts.TitleOpts(title="Line-temp&hum"),
+                             legend_opts=opts.LegendOpts(pos_right="20%"))
     )
     grid = Grid(init_opts=opts.InitOpts(height="800px", width="1400px"))
     grid.add(c0, grid_opts=opts.GridOpts(is_show=True, pos_right='55%', pos_top='20%'))
